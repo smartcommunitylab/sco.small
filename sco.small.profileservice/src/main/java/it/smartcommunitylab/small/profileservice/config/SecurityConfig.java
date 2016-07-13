@@ -51,19 +51,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		// .headers()
 		// .frameOptions().disable();
 
-		http.rememberMe();
+//		http.rememberMe();
 
-//		http.authorizeRequests().antMatchers("/extprofile/me/**")
-//				.hasAnyAuthority(SmallUserDetails.SMALLPROFILE).and()
+		http
+		.authorizeRequests()
+			.antMatchers("/extprofile/**")
+				.hasAnyAuthority(SmallUserDetails.SMALLPROFILE).and()
+				.addFilterBefore(oauthAuthenticationFilter(), BasicAuthenticationFilter.class)
 //				.addFilterBefore(rememberMeAuthenticationFilter(), BasicAuthenticationFilter.class)
-//				.addFilterBefore(oauthAuthenticationFilter(), BasicAuthenticationFilter.class);
-
-		http.csrf().disable().authorizeRequests().antMatchers("/", "/console/**").authenticated()
-				.anyRequest().permitAll();
-
-		http.formLogin().loginPage("/login").permitAll().and().logout().permitAll()
-				.deleteCookies("rememberme", "JSESSIONID");
-
+		.authorizeRequests()
+			.antMatchers("/", "/console/**").authenticated()
+		.and().formLogin().loginPage("/login").permitAll()
+		.and().logout().permitAll().deleteCookies("rememberme", "JSESSIONID")
+		.and().csrf().disable();
 	}
 
 	@Bean

@@ -42,13 +42,8 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.AuthorizationCodeGrant;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.GrantType;
-import springfox.documentation.service.OAuth;
+import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.SecurityScheme;
-import springfox.documentation.service.TokenEndpoint;
-import springfox.documentation.service.TokenRequestEndpoint;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -180,19 +175,19 @@ public class ProfileServiceConfig extends WebMvcConfigurerAdapter {
 	
 	private List<SecurityScheme> getSecuritySchemes() {
 		List<SecurityScheme> result = new ArrayList<SecurityScheme>();
-		List<AuthorizationScope> scopes = new ArrayList<AuthorizationScope>();
-		scopes.add(new AuthorizationScope("personal:profileId:read", "read a specific user profile"));
-		scopes.add(new AuthorizationScope("personal:profileId:write", "write a specific user profile"));
-		scopes.add(new AuthorizationScope("personal:profileId:delete", "delete a specific user profile"));
-		scopes.add(new AuthorizationScope("app:profileId:read", "read a specific user profile"));
-		scopes.add(new AuthorizationScope("app:profileId:write", "write a specific user profile"));
-		scopes.add(new AuthorizationScope("app:profileId:delete", "delete a specific user profile"));
-		List<GrantType> grants = new ArrayList<GrantType>();
-		grants.add(new AuthorizationCodeGrant(
-				new TokenRequestEndpoint("/authorize", "client_id", "client_secret"), 
-				new TokenEndpoint("/token", "token")));
-		OAuth oAuth = new OAuth("profile_auth", scopes, grants);
-		result.add(oAuth);
+//		List<AuthorizationScope> scopes = new ArrayList<AuthorizationScope>();
+//		scopes.add(new AuthorizationScope("personal.mobility.read", "read a specific user profile"));
+//		scopes.add(new AuthorizationScope("personal.mobility.write", "write a specific user profile"));
+//		scopes.add(new AuthorizationScope("app.mobility.read", "read a specific user profile"));
+//		scopes.add(new AuthorizationScope("app.mobility.write", "write a specific user profile"));
+//		List<GrantType> grants = new ArrayList<GrantType>();
+//		grants.add(new AuthorizationCodeGrant(
+//				new TokenRequestEndpoint("https://dev.smartcommunitylab.it/aac/authorize", "client_id", "client_secret"), 
+//				new TokenEndpoint("https://dev.smartcommunitylab.it/aac/token", "token")));
+//		OAuth oAuth = new OAuth("profile_auth", scopes, grants);
+//		result.add(oAuth);
+		ApiKey apiKey = new ApiKey("Authorization", "Authorization", "header");
+		result.add(apiKey);
 		return result;
 	}
 }

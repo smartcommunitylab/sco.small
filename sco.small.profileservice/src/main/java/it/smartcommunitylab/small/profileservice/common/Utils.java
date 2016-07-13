@@ -1,17 +1,20 @@
 package it.smartcommunitylab.small.profileservice.common;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+
+import eu.trentorise.smartcampus.aac.AACException;
+import eu.trentorise.smartcampus.aac.AACService;
 
 public class Utils {
-
+	private static final transient Logger logger = LoggerFactory.getLogger(Utils.class);
+			
 	public static boolean isNull(String value) {
 		if((value == null) || (value.isEmpty())) {
 			return true;
@@ -38,20 +41,32 @@ public class Utils {
 	}
 	
 	public static String getUserId() {
-		UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return principal.getUsername();
+		String principal = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return principal;
 	}
 	
-	public static boolean isRequestScopePermitted(HttpServletRequest request, String profileId, String caller, String method) {
-		String scope = (String)request.getAttribute("scope");
-		if(!Utils.isNull(scope)) {
-			List<String> permissions = Arrays.asList(scope.split(" "));
-			String requestedScope = caller + ":" + profileId + ":" + method;
-			if(permissions.contains(requestedScope)) {
-				return true;
+	public static boolean isRequestScopePermitted(HttpServletRequest request, AACService aacService, 
+			String profileId, String caller, String method) {
+		String token = Utils.extractToken(request);
+		if(!isNull(token)) {
+			String requestedScope = caller + "." + profileId + "." + method;
+			try {
+				return aacService.isTokenApplicable(token, requestedScope);
+			} catch (AACException e) {
+				logger.error("isRequestScopePermitted error:" + e.getMessage());
 			}
 		}
 		return false;
+	}
+	
+	public static String extractToken(HttpServletRequest request) {
+		String completeToken = request.getHeader(Const.AUTHORIZATION);
+		if (completeToken == null)
+			return null;
+		if (completeToken.startsWith(Const.BEARER_TYPE)) {
+			completeToken = completeToken.substring(Const.BEARER_TYPE.length());
+		}
+		return completeToken;
 	}
 	
 }
