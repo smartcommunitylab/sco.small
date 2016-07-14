@@ -2,6 +2,8 @@ package it.smartcommunitylab.small.profileservice.controller.rest;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
+import io.swagger.annotations.AuthorizationScope;
+import it.smartcommunitylab.small.profileservice.common.Const;
 import it.smartcommunitylab.small.profileservice.common.EntityNotFoundException;
 import it.smartcommunitylab.small.profileservice.common.UnauthorizedException;
 import it.smartcommunitylab.small.profileservice.common.Utils;
@@ -65,7 +67,12 @@ public class ExtendedProfileController {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/extprofile/me/{profileId}")
 	@ApiOperation(value = "get a spacific logged user's profile", 
-		authorizations = {@Authorization(value = "Authorization")})
+		authorizations = {@Authorization(value = Const.personalSchemaOAuth2,
+			scopes = {
+				@AuthorizationScope(scope = Const.basicProfileScope, description = Const.basicProfileScopeDesc),
+				@AuthorizationScope(scope = Const.personalReadScope, description = Const.personalReadScopeDesc)
+			})
+		})
 	public @ResponseBody ExtendedProfile getMyProfileById(@PathVariable String profileId, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		String userId = Utils.getUserId();
@@ -84,7 +91,12 @@ public class ExtendedProfileController {
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/extprofile/me/{profileId}")
 	@ApiOperation(value = "add a new profile to logged user",
-		authorizations = {@Authorization(value = "Authorization")})
+		authorizations = {@Authorization(value = Const.personalSchemaOAuth2,
+			scopes = {
+				@AuthorizationScope(scope = Const.basicProfileScope, description = Const.basicProfileScopeDesc),
+				@AuthorizationScope(scope = Const.personalWriteScope, description = Const.personalWriteScopeDesc)
+			})
+		})
 	public @ResponseBody ExtendedProfile addMyProfile(@PathVariable String profileId,	@RequestBody ExtendedProfile profile, 
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String userId = Utils.getUserId();
@@ -103,7 +115,12 @@ public class ExtendedProfileController {
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/extprofile/me/{profileId}")
 	@ApiOperation(value = "update a spacific logged user's profile",
-		authorizations = {@Authorization(value = "Authorization")})
+		authorizations = {@Authorization(value = Const.personalSchemaOAuth2,
+			scopes = {
+				@AuthorizationScope(scope = Const.basicProfileScope, description = Const.basicProfileScopeDesc),
+				@AuthorizationScope(scope = Const.personalWriteScope, description = Const.personalWriteScopeDesc)
+			})
+		})
 	public @ResponseBody ExtendedProfile updateMyProfile(@PathVariable String profileId, @RequestBody ExtendedProfile profile, 
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String userId = Utils.getUserId();
@@ -122,7 +139,12 @@ public class ExtendedProfileController {
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/extprofile/me/{profileId}")
 	@ApiOperation(value = "delete a spacific logged user's profile",
-		authorizations = {@Authorization(value = "Authorization")})
+		authorizations = {@Authorization(value = Const.personalSchemaOAuth2,
+			scopes = {
+				@AuthorizationScope(scope = Const.basicProfileScope, description = Const.basicProfileScopeDesc),
+				@AuthorizationScope(scope = Const.personalWriteScope, description = Const.personalWriteScopeDesc)
+			})
+		})
 	public @ResponseBody ExtendedProfile deleteMyProfile(@PathVariable String profileId, 
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String userId = Utils.getUserId();
@@ -155,7 +177,11 @@ public class ExtendedProfileController {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/extprofile/app/{userId}/{profileId}")
 	@ApiOperation(value = "get a spacific user profile",
-		authorizations = {@Authorization(value = "Authorization")})
+		authorizations = {@Authorization(value = Const.appSchemaOAuth2,
+			scopes = {
+				@AuthorizationScope(scope = Const.appReadScope, description = Const.appReadScopeDesc)
+			})
+		})
 	public @ResponseBody ExtendedProfile getUserProfileById(@PathVariable String userId, @PathVariable String profileId, 
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if(!Utils.isRequestScopePermitted(request, aacService, profileId, "app", "read")) {
@@ -170,7 +196,11 @@ public class ExtendedProfileController {
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/extprofile/app/{userId}/{profileId}")
 	@ApiOperation(value = "add a new user profile",
-		authorizations = {@Authorization(value = "Authorization")})
+		authorizations = {@Authorization(value = Const.appSchemaOAuth2,
+			scopes = {
+				@AuthorizationScope(scope = Const.appWriteScope, description = Const.appWriteScopeDesc)
+			})
+		})
 	public @ResponseBody ExtendedProfile addUserProfile(@PathVariable String userId, @PathVariable String profileId, 
 			@RequestBody ExtendedProfile profile, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if(!Utils.isRequestScopePermitted(request, aacService, profileId, "app", "write")) {
@@ -185,7 +215,11 @@ public class ExtendedProfileController {
 		
 	@RequestMapping(method = RequestMethod.PUT, value = "/extprofile/app/{userId}/{profileId}")
 	@ApiOperation(value = "update a spacific user profile",
-		authorizations = {@Authorization(value = "Authorization")})
+		authorizations = {@Authorization(value = Const.appSchemaOAuth2,
+			scopes = {
+				@AuthorizationScope(scope = Const.appWriteScope, description = Const.appWriteScopeDesc)
+			})
+		})
 	public @ResponseBody ExtendedProfile updateUserProfile(@PathVariable String userId, @PathVariable String profileId, 
 			@RequestBody ExtendedProfile profile, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if(!Utils.isRequestScopePermitted(request, aacService, profileId, "app", "write")) {
@@ -200,7 +234,11 @@ public class ExtendedProfileController {
 	
 	@RequestMapping(method = RequestMethod.DELETE, value = "/extprofile/app/{userId}/{profileId}")
 	@ApiOperation(value = "delete a spacific user profile",
-		authorizations = {@Authorization(value = "Authorization")})
+		authorizations = {@Authorization(value = Const.appSchemaOAuth2,
+			scopes = {
+				@AuthorizationScope(scope = Const.appWriteScope, description = Const.appWriteScopeDesc)
+			})
+		})
 	public @ResponseBody ExtendedProfile deleteUserProfile(@PathVariable String userId, @PathVariable String profileId, 
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if(!Utils.isRequestScopePermitted(request, aacService, profileId, "app", "write")) {

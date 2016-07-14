@@ -16,6 +16,7 @@
 
 package it.smartcommunitylab.small.profileservice.config;
 
+import it.smartcommunitylab.small.profileservice.common.Const;
 import it.smartcommunitylab.small.profileservice.manager.RepositoryManager;
 
 import java.net.UnknownHostException;
@@ -42,7 +43,11 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
+import springfox.documentation.service.GrantType;
+import springfox.documentation.service.ImplicitGrant;
+import springfox.documentation.service.LoginEndpoint;
+import springfox.documentation.service.OAuth;
 import springfox.documentation.service.SecurityScheme;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
@@ -152,6 +157,19 @@ public class ProfileServiceConfig extends WebMvcConfigurerAdapter {
 		return new PropertySourcesPlaceholderConfigurer();
 	}
 	
+//	@Bean
+//  SecurityConfiguration security() {
+//    return new SecurityConfiguration(
+//        "8b562674-006b-4e87-a2c2-0c4028dac41f",
+//        "36b90f12-d03b-4a5e-9bda-2bbb6eb60033",
+//        null,
+//        "test-app",
+//        "Authorization",
+//        ApiKeyVehicle.HEADER, 
+//        "api_key", 
+//        "," /*scope separator*/);
+//  }
+	
 	@SuppressWarnings("deprecation")
 	@Bean
   public Docket swaggerSpringMvcPlugin() {
@@ -164,7 +182,9 @@ public class ProfileServiceConfig extends WebMvcConfigurerAdapter {
      		.build()
         .apiInfo(apiInfo)
         .produces(getContentTypes())
+//        .securityContexts(securityContexts())
         .securitySchemes(getSecuritySchemes());
+        
   }
 	
 	private Set<String> getContentTypes() {
@@ -175,19 +195,48 @@ public class ProfileServiceConfig extends WebMvcConfigurerAdapter {
 	
 	private List<SecurityScheme> getSecuritySchemes() {
 		List<SecurityScheme> result = new ArrayList<SecurityScheme>();
-//		List<AuthorizationScope> scopes = new ArrayList<AuthorizationScope>();
-//		scopes.add(new AuthorizationScope("personal.mobility.read", "read a specific user profile"));
-//		scopes.add(new AuthorizationScope("personal.mobility.write", "write a specific user profile"));
-//		scopes.add(new AuthorizationScope("app.mobility.read", "read a specific user profile"));
-//		scopes.add(new AuthorizationScope("app.mobility.write", "write a specific user profile"));
-//		List<GrantType> grants = new ArrayList<GrantType>();
-//		grants.add(new AuthorizationCodeGrant(
-//				new TokenRequestEndpoint("https://dev.smartcommunitylab.it/aac/authorize", "client_id", "client_secret"), 
-//				new TokenEndpoint("https://dev.smartcommunitylab.it/aac/token", "token")));
-//		OAuth oAuth = new OAuth("profile_auth", scopes, grants);
-//		result.add(oAuth);
-		ApiKey apiKey = new ApiKey("Authorization", "Authorization", "header");
-		result.add(apiKey);
+		
+		List<AuthorizationScope> appScopes = new ArrayList<AuthorizationScope>();
+		appScopes.add(new AuthorizationScope(Const.appReadScope, Const.appReadScopeDesc));
+		appScopes.add(new AuthorizationScope(Const.appWriteScope, Const.appWriteScopeDesc));
+		List<GrantType> appGrants = new ArrayList<GrantType>();
+		appGrants.add(new ImplicitGrant(new LoginEndpoint("https://dev.smartcommunitylab.it/aac/eauth/authorize"), "token")); 
+		OAuth appOAuth = new OAuth(Const.appSchemaOAuth2, appScopes, appGrants);
+		result.add(appOAuth);
+		
+		List<AuthorizationScope> personalScopes = new ArrayList<AuthorizationScope>();
+		personalScopes.add(new AuthorizationScope(Const.basicProfileScope, Const.basicProfileScopeDesc));
+		personalScopes.add(new AuthorizationScope(Const.personalReadScope, Const.personalReadScopeDesc));
+		personalScopes.add(new AuthorizationScope(Const.personalWriteScope, Const.personalWriteScopeDesc));
+		List<GrantType> personalGrants = new ArrayList<GrantType>();
+		personalGrants.add(new ImplicitGrant(new LoginEndpoint("https://dev.smartcommunitylab.it/aac/eauth/authorize"), "token")); 
+		OAuth personalOAuth = new OAuth(Const.personalSchemaOAuth2, personalScopes, personalGrants);
+		result.add(personalOAuth);
+		
+//		ApiKey apiKey = new ApiKey("Authorization", "Authorization", "header");
+//		result.add(apiKey);
 		return result;
 	}
+	
+//	private List<SecurityContext> securityContexts() {
+//		List<SecurityContext> result = new ArrayList<SecurityContext>();
+//		SecurityContext sc = SecurityContext.builder()
+//    .securityReferences(defaultAuth())
+//    .forPaths(PathSelectors.regex("/extprofile/.*"))
+//    .build();
+//		result.add(sc);
+//		return result;
+//  }
+	
+//	private List<SecurityReference> defaultAuth() {
+//		List<SecurityReference> result = new ArrayList<SecurityReference>();
+//		AuthorizationScope authorizationScope = new AuthorizationScope(Const.personalReadScope, Const.personalReadScopeDesc);
+//    AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+//    authorizationScopes[0] = authorizationScope;
+//    SecurityReference sr = new SecurityReference(Const.securitySchemaOAuth2, authorizationScopes);
+//    result.add(sr);
+//    return result;
+//  }	
+	
+
 }
